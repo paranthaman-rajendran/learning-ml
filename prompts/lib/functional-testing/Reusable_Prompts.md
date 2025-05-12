@@ -1,32 +1,3 @@
-# Reusable GitHub Copilot Prompts for Financial Domain
-
-This document contains reusable prompts for GitHub Copilot to assist with functional test case generation, development tasks, and more.
-
----
-
-## Functional Test Case Prompts
-
-### Customer Onboarding
-
-```markdown
-Generate a comprehensive set of functional test cases for the 'New Customer Onboarding' process in a Core Banking System. Include scenarios for:
-
-- Successful onboarding with valid KYC documents.
-- Rejection due to invalid/incomplete KYC information.
-- Verification of duplicate customer checks.
-  Output as: Test Case ID | Description | Steps | Expected Results | Test Data Considerations.
-```
-
-### Fund Transfer
-
-```markdown
-Generate functional test cases for 'Fund Transfer between own accounts' within the Core Banking System. Include:
-
-- Sufficient and insufficient balance scenarios.
-- Transfers involving different currency accounts.
-- Verification of transaction limits (daily, per transaction).
-  Format: Given [Context], When [Action], Then [Verification].
-```
 # GitHub Copilot Prompts for Financial Domain Functional Test Cases
 
 ---
@@ -38,6 +9,38 @@ Generate functional test cases for 'Fund Transfer between own accounts' within t
 - **Incorporate Constraints & Edge Cases**: Explicitly ask for negative scenarios, boundary conditions, and specific compliance checks.
 - **Provide Contextual Clues**: Mention the system (e.g., "Core Banking System," "Payments Hub"), the user role, and the expected technologies if relevant (e.g., "API tests," "UI tests").
 - **Iterate and Refine**: Your first prompt is a starting point. Use Copilot's output to refine your next prompt for even better results.
+- **Include System Information**: Add details about the system architecture, database, APIs, and validation mechanisms to ensure accurate test generation.
+- **Test Data Generation**: Specify the type of test data required (e.g., valid, invalid, edge cases) to cover all scenarios comprehensively.
+
+---
+
+## Functional Test Generation Instructions:
+
+When generating functional test cases, follow these guidelines:
+
+1. **System Context**:
+
+   - Clearly define the system or module being tested (e.g., "Core Banking System," "Payments Module").
+   - Mention the technologies involved (e.g., Spring Boot, PostgreSQL, Kafka).
+
+2. **Test Case Categories**:
+
+   - **Positive Scenarios**: Focus on expected behavior with valid inputs.
+   - **Negative Scenarios**: Test invalid inputs, missing data, or boundary violations.
+   - **Edge Cases**: Include scenarios that test system limits or unusual conditions.
+
+3. **Output Format**:
+
+   - Use structured formats like Gherkin (`Given-When-Then`) or tabular formats (`Test Case ID | Description | Steps | Expected Results | Test Data`).
+
+4. **Test Data Requirements**:
+
+   - Specify the type of test data needed (e.g., valid KYC documents, invalid account numbers, maximum field lengths).
+   - Include examples of test data for each scenario.
+
+5. **Validation Points**:
+   - Ensure test cases validate all critical aspects, such as database updates, API responses, and UI behavior.
+   - Include checks for error messages, logs, and audit trails.
 
 ---
 
@@ -50,12 +53,32 @@ Generate functional test cases for 'Fund Transfer between own accounts' within t
    ```markdown
    Generate a comprehensive set of functional test cases for the 'New Customer Onboarding' process in a Core Banking System. Include scenarios for:
 
+   **System Information**:
+
+   - The system uses Spring Boot microservices for customer onboarding.
+   - Data is stored in PostgreSQL, and validations are performed using Spring Validation.
+   - REST APIs are exposed for integration with external KYC providers.
+
+   **Positive Cases**:
+
    - Successful onboarding with all valid individual customer data (KYC documents, minimum deposit).
+   - Successful onboarding for a corporate customer with necessary business documentation.
+   - Verification of duplicate customer checks to prevent duplicate entries.
+
+   **Negative Cases**:
+
    - Rejection due to invalid/incomplete KYC information (e.g., expired ID, mismatched address proof).
    - Rejection due to age ineligibility (below 18 years).
-   - Scenario for a corporate customer onboarding with necessary business documentation.
-   - Verification of duplicate customer checks.
-     Output as: Test Case ID | Description | Steps | Expected Results | Test Data Considerations.
+   - Rejection due to missing mandatory fields (e.g., name, address, or contact details).
+
+   **Edge Cases**:
+
+   - Onboarding a customer with a name containing special characters or non-Latin alphabets.
+   - Onboarding a customer with an address in a remote or unlisted location.
+   - Handling of extremely large or small deposit amounts during onboarding.
+   - Onboarding a customer with borderline age eligibility (e.g., exactly 18 years old).
+
+   Output as: Test Case ID | Description | Steps | Expected Results | Test Data Considerations.
    ```
 
 2. **Customer Address Update**
@@ -83,11 +106,30 @@ Generate functional test cases for 'Fund Transfer between own accounts' within t
    ```markdown
    Generate functional test cases for 'Fund Transfer between own accounts' within the Core Banking System. Include:
 
-   - Sufficient and insufficient balance scenarios.
-   - Transfers involving different currency accounts (if applicable, note FX conversion).
-   - Verification of transaction limits (daily, per transaction).
+   **System Information:**
+
+   - The system uses Spring Boot microservices for transaction processing.
+   - Transactions are logged in Kafka for audit purposes.
+   - PostgreSQL is used for account balance storage, and transaction limits are configured in the database.
+
+   **Positive Cases:**
+
+   - Sufficient balance scenarios for successful transfers.
+   - Transfers involving different currency accounts with FX conversion.
    - Real-time balance updates post-transfer.
-     Format: Given [Context], When [Action], Then [Verification].
+
+   **Negative Cases:**
+
+   - Insufficient balance scenarios resulting in transfer failure.
+   - Transfers exceeding daily or per-transaction limits.
+
+   **Edge Cases:**
+
+   - Transfers with maximum allowed field lengths for account numbers.
+   - Transfers involving accounts with special conditions (e.g., dormant accounts).
+   - Transfers during system maintenance or downtime.
+
+   Format: Given [Context], When [Action], Then [Verification].
    ```
 
 5. **Statement Generation**
@@ -149,48 +191,45 @@ Generate functional test cases for 'Fund Transfer between own accounts' within t
 
 11. **IMPS Payment**
 
-    ```markdown
-    Generate functional test cases for an 'IMPS Payment' from a mobile banking app. Include:
+```markdown
+Generate functional test cases for an 'IMPS Payment' from a mobile banking app. Include:
 
-    - Successful payment using MMID and mobile number.
-    - Successful payment using IFSC and Account number.
-    - Payment failure due to incorrect beneficiary details.
-    - Handling of transaction timeouts and reconciliation.
-    - Validation of per-transaction and daily limits.
-      Output should include test data for mobile numbers, MMIDs, and sample account details.
-    ```
+**System Information**:
+
+- The system integrates with NPCI's IMPS gateway via REST APIs.
+- Payment requests are validated using Spring Security and logged in Kafka.
+- Daily and per-transaction limits are enforced at the database level.
+
+**Positive Cases**:
+
+- Successful payment using MMID and mobile number.
+- Successful payment using IFSC and account number.
+
+**Negative Cases**:
+
+- Payment failure due to incorrect beneficiary details.
+- Payment exceeding daily or per-transaction limits.
+
+**Edge Cases**:
+
+- Payments with maximum allowed field lengths for beneficiary details.
+- Payments during peak transaction hours or system downtime.
+
+Output should include test data for mobile numbers, MMIDs, and sample account details.
+```
 
 12. **UPI Payment via QR Code**
-    ```markdown
-    Create Gherkin scenarios for 'UPI Payment via QR Code scan.' Cover:
 
-    - Successful payment to a merchant.
-    - Payment to an individual.
-    - Handling of invalid or expired QR codes.
-    - Dispute resolution initiation for failed but debited transactions.
-    ```
+```markdown
+Create Gherkin scenarios for 'UPI Payment via QR Code scan.' Cover:
+
+- Successful payment to a merchant.
+- Payment to an individual.
+- Handling of invalid or expired QR codes.
+- Dispute resolution initiation for failed but debited transactions.
+```
 
 ---
 
 **Pro-Tip for Using These Prompts:**  
-Don't just copy-paste. Tailor them further. For instance, if your system uses a specific internal name for a feature, use that. If there's a unique regulatory requirement for your region (e.g., RBI guidelines for India), add that constraint. The more context you feed Copilot, the more refined and useful its test case generation will be. Happy prompting!
-
----
-
-## Development Prompts
-
-### Create a JPA Entity
-
-```markdown
-Write a JPA entity for a SavingAccount with fields: accountId, customerId, accountNumber, balance, status, createdDate, modifiedDate. Use Lombok annotations and JPA validation constraints.
-```
-
-### API Documentation
-
-```markdown
-Generate OpenAPI annotations for SavingAccountController to document all endpoints like createAccount, deposit, withdraw, transfer, getMiniStatement, and closeAccount.
-```
-
----
-
-**Pro-Tip:** Use these prompts as a starting point and tailor them to your specific use case.
+Include system-specific details like database configurations, API integrations, and validation mechanisms to generate more accurate and relevant test cases.
